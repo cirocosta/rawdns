@@ -20,3 +20,8 @@ type Message struct {
 	// Authority
 	// Additional
 }
+
+func (m Message) Marshal() (res []byte, err error) {
+	// TODO implement
+	return
+}

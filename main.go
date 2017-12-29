@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/alexflint/go-arg"
+	"fmt"
+	"os"
 
-	_ "github.com/cirocosta/rawdns/lib"
+	"github.com/alexflint/go-arg"
+	"github.com/cirocosta/rawdns/lib"
 )
 
 type cliConfig struct {
@@ -18,6 +20,27 @@ var (
 	}
 )
 
+func must(err error) {
+	if err == nil {
+		return
+	}
+
+	fmt.Printf("ERROR: %+v\n", err)
+	os.Exit(1)
+}
+
 func main() {
 	arg.MustParse(config)
+
+	client, err := lib.NewClient(lib.ClientConfig{
+		Address: config.Address,
+	})
+	must(err)
+
+	ips, err := client.LookupAddr(config.Hostname)
+	must(err)
+
+	for _, ip := range ips {
+		fmt.Println(ip)
+	}
 }

@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"net"
 	"sync"
 
@@ -56,11 +57,15 @@ func (c *Client) LookupAddr(addr string) (ips []string, err error) {
 
 	queryMsg := &Message{
 		Header: Header{
-			ID: id,
+			ID:      id,
+			QR:      0,
+			Opcode:  OpcodeQuery,
+			QDCOUNT: 1,
+			RD:      1,
 		},
 		Questions: []*Question{
 			{
-				QNAME:  "google.com",
+				QNAME:  addr,
 				QTYPE:  QTypeA,
 				QCLASS: QClassIN,
 			},
@@ -75,6 +80,19 @@ func (c *Client) LookupAddr(addr string) (ips []string, err error) {
 			queryMsg)
 		return
 	}
+
+	fmt.Printf("msg sent %s\n", string(payload))
+
+	buf := make([]byte, 1024)
+	_, err = c.conn.Read(buf)
+	if err != nil {
+		err = errors.Wrapf(err,
+			"failed to read from conn")
+		return
+
+	}
+
+	fmt.Printf("response: %s", string(buf))
 
 	return
 }

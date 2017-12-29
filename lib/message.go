@@ -1,5 +1,9 @@
 package lib
 
+import (
+	"github.com/pkg/errors"
+)
+
 // Message represents a DNS message that is sent
 // via a transport.
 type Message struct {
@@ -22,6 +26,29 @@ type Message struct {
 }
 
 func (m Message) Marshal() (res []byte, err error) {
-	// TODO implement
+	var (
+		questionPayload []byte
+	)
+
+	res, err = m.Header.Marshal()
+	if err != nil {
+		err = errors.Wrapf(err,
+			"failed to create header payload %+v",
+			m.Header)
+		return
+	}
+
+	for _, question := range m.Questions {
+		questionPayload, err = question.Marshal()
+		if err != nil {
+			err = errors.Wrapf(err,
+				"failed to marshal question %+v",
+				question)
+			return
+		}
+
+		res = append(res, questionPayload...)
+	}
+
 	return
 }

@@ -36,6 +36,7 @@ func main() {
 		Address: config.Address,
 	})
 	must(err)
+	defer client.Close()
 
 	ips, err := client.LookupAddr(config.Hostname)
 	must(err)

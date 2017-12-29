@@ -9,7 +9,7 @@ import (
 
 // RCODE denotes a 4bit field that specifies the response
 // code for a query.
-type RCODE uint8
+type RCODE byte
 
 const (
 	RCODENoError RCODE = iota
@@ -21,7 +21,7 @@ const (
 )
 
 // Opcode denotes a 4bit field that specified the query type.
-type Opcode uint8
+type Opcode byte
 
 const (
 	OpcodeQuery Opcode = iota
@@ -61,7 +61,7 @@ type Header struct {
 	// QR is an 1bit flag specifying whether this message is a query (0)
 	// of a response (1)
 	// 1bit
-	QR uint8
+	QR byte
 
 	// Opcode is a 4bit field that specifies the query type.
 	// Possible values are:
@@ -75,27 +75,27 @@ type Header struct {
 	// server.
 	// Valid in responses only.
 	// 1bit.
-	AA uint8
+	AA byte
 
 	// TC indicates whether the message was (T)run(C)ated due to the length
 	// being grater than the permitted on the transmission channel.
 	// 1bit.
-	TC uint8
+	TC byte
 
 	// RD indicates whether (R)ecursion is (D)esired or not.
 	// 1bit.
-	RD uint8
+	RD byte
 
 	// RA indidicates whether (R)ecursion is (A)vailable or not.
 	// 1bit.
-	RA uint8
+	RA byte
 
 	// Z is reserved for future use
-	Z uint8
+	Z byte
 
 	// RCODE contains the (R)esponse (CODE) - it's a 4bit field that is
 	// set as part of responses.
-	RCODE uint8
+	RCODE byte
 
 	// QDCOUNT specifies the number of entries in the question section
 	QDCOUNT uint16
@@ -113,43 +113,131 @@ type Header struct {
 	ARCOUNT uint16
 }
 
+// masks is a map of bit masks in the form
+// of a slice where each entry retrieves a
+// mask that when `AND`ed gives only the
+// last `n` bits (0-indexed).
+//
+// 7 6 5 4 3 2 1 0
+//
+// 0 0 0 0 0 0 0 1     1   = (1 << 1 ) - 1
+// 0 0 0 0 0 0 1 1     3   = (1 << 2 ) - 1
+// 0 0 0 0 0 1 1 1     7   = (1 << 3 ) - 1
+// 0 0 0 0 1 1 1 1     15  = (1 << 4 ) - 1
+// 0 0 0 1 1 1 1 1     31  = (1 << 5 ) - 1
+// 0 0 1 1 1 1 1 1     63  = (1 << 6 ) - 1
+// 0 1 1 1 1 1 1 1     127 = (1 << 7 ) - 1
+// 1 1 1 1 1 1 1 1     255 = (1 << 8 ) - 1
+var masks = []byte{
+	(1 << 1) - 1,
+	(1 << 2) - 1,
+	(1 << 3) - 1,
+	(1 << 4) - 1,
+	(1 << 5) - 1,
+	(1 << 6) - 1,
+	(1 << 7) - 1,
+	(1 << 8) - 1,
+}
+
 func UnmarshalHeader(msg []byte, h *Header) (err error) {
+	var (
+		h1_0 byte = 0
+		h1_1 byte = 0
+	)
+
 	if h == nil {
 		err = errors.Errorf("header must not be nil")
 		return
 	}
+
+	if len(msg) != 12 {
+		err = errors.Errorf(
+			"msg does not have the expected size - %d",
+			len(msg))
+		return
+	}
+
+	// ID is formed by the first two bytes such that
+	// it results in an uint16.
+	// As this comes from the network in UDP packets we can assume that it comes
+	// in BigEndian (network byte order), thus, consider the first byte of each
+	// the most significant.
+	h.ID = uint16(msg[1]) | uint16(msg[0])<<8
+
+	// take the first byte of the second row (QR, Opcode, AA, TC and RD)
+	h1_0 = msg[2]
+
+	// Each value is got from right bitshifting
+	// followed by masking such that we end up
+	// with only that number.
+	// Here we're starting from right to left.
+	h.RD = h1_0 & masks[0]
+	h.TC = (h1_0 >> 1) & masks[0]
+	h.AA = (h1_0 >> 2) & masks[0]
+	h.Opcode = Opcode((h1_0 >> 3) & masks[3])
+	h.QR = (h1_0 >> 7) & masks[0]
+
+	// take the second byte of the second row (RA, Z, RCODE)
+	h1_1 = msg[3]
+	h.RCODE = h1_1 & masks[3]
+	h.RCODE = (h1_1 >> 4) & masks[2]
+	h.RCODE = (h1_1 >> 7) & masks[0]
+
+	// QDCOUNT, ANCOUNT, NSCOUNT and ARCOUNT are all formed by two bytes that
+	// results in uint16.
+	// As this comes from the network in UDP packets we can assume that it comes
+	// in BigEndian (network byte order), thus, consider the first byte of each
+	// the most significant.
+	h.QDCOUNT = uint16(msg[5]) | uint16((msg[4] << 8))
+
+	// ANCOUNT is formed by two bytes that results in uint16
+	h.ANCOUNT = uint16(msg[7]) | uint16(msg[6]<<8)
+
+	// NSCOUNT is formed by two bytes that results in uint16
+	h.QDCOUNT = uint16(msg[9]) | uint16(msg[8]<<8)
+
+	// ARCOUNT is formed by two bytes that results in uint16
+	h.QDCOUNT = uint16(msg[11]) | uint16(msg[10]<<8)
 
 	return
 }
 
 func (h Header) Marshal() (res []byte, err error) {
 	var (
-		buf *bytes.Buffer
-
-		// first 8bit part of the second row
-		// QR :		0
-		// Opcode:	1 2 3 4
-		// AA:		5
-		// TC:		6
-		// RD:		7
-		h1_0 uint8 = 0
-
-		// second 8bit part of the second row
-		// RA:		0
-		// Z:		1 2 3
-		// RCODE:	4 5 6 7
-		h1_1 uint8 = 0
+		buf       = new(bytes.Buffer)
+		h1_0 byte = 0
+		h1_1 byte = 0
 	)
 
-	err = binary.Write(buf, binary.BigEndian, h.ID)
-	if err != nil {
-		err = errors.Wrapf(err,
-			"failed to write ID bytes %x into buffer",
-			h.ID)
-		return
-	}
+	binary.Write(buf, binary.BigEndian, h.ID)
 
-	h1_0 = h.QR << 7
+	// first 8bit part of the second row
+	// QR :		0
+	// Opcode:	1 2 3 4
+	// AA:		5
+	// TC:		6
+	// RD:		7
+	h1_0 = h.QR << (7 - 0)
+	h1_0 = h1_0 | byte(h.Opcode)<<(7-1)
+	h1_0 = h1_0 | h.AA<<(7-5)
+	h1_0 = h1_0 | h.TC<<(7-6)
+	h1_0 = h1_0 | h.RD<<(7-7)
+
+	// second 8bit part of the second row
+	// RA:		0
+	// Z:		1 2 3
+	// RCODE:	4 5 6 7
+	h1_1 = h.RA << (7 - 0)
+	h1_1 = h1_1 | h.Z<<(7-1)
+	h1_1 = h1_1 | byte(h.RCODE)<<(7-4)
+
+	buf.WriteByte(h1_0)
+	buf.WriteByte(h1_1)
+
+	binary.Write(buf, binary.BigEndian, h.QDCOUNT)
+	binary.Write(buf, binary.BigEndian, h.ANCOUNT)
+	binary.Write(buf, binary.BigEndian, h.NSCOUNT)
+	binary.Write(buf, binary.BigEndian, h.ARCOUNT)
 
 	res = buf.Bytes()
 	return

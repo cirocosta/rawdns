@@ -21,6 +21,11 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 		},
 	}
 
+	var (
+		msg []byte
+		err error
+	)
+
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			msg, err = tc.header.Marshal()

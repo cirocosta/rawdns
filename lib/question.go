@@ -108,6 +108,11 @@ func (q Question) Marshal() (res []byte, err error) {
 	}
 
 	for _, label := range labels {
+		if len(label) == 0 {
+			err = errors.Errorf("can't have empty label")
+			return
+		}
+
 		buf.WriteByte(uint8(len(label)))
 		buf.Write([]byte(label))
 	}
@@ -121,11 +126,33 @@ func (q Question) Marshal() (res []byte, err error) {
 	return
 }
 
+// 1. pick a number --> indicates how many bytes we can read ahead
+//    --> if ZERO: then we know it comes a QTYPE and a QCLASS
+// 2.
 func UnmarshalQuestion(msg []byte, q *Question) (err error) {
 	if q == nil {
 		err = errors.Errorf("question must be non-nil")
 		return
 	}
+
+	var (
+		ndx    int = 0
+		size   int = 0
+		labels     = []string{}
+	)
+
+	for {
+		size = int(msg[ndx])
+		if size == 0 {
+			ndx += 1
+			break
+		}
+
+		labels = append(labels, string(msg[ndx+1:ndx+size+1]))
+		ndx += (size + 1)
+	}
+
+	q.QNAME = strings.Join(labels, ".")
 
 	return
 }

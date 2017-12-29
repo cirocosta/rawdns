@@ -38,7 +38,7 @@ type RR struct {
 
 	// TTL indicates the time interval in seconds that the resource
 	// recorded may be cached before it should be discarded.
-	TTL uint16
+	TTL uint32
 
 	// RDLENGTH specifies the length in octets of the RDATA field.
 	// ps.: if there's a pointer in the RDATA, this length
@@ -57,11 +57,11 @@ func UnmarshalRR(msg []byte, r *RR) (n int, err error) {
 
 	r.TYPE = QType(uint16(msg[3]) | uint16(msg[2]))
 	r.CLASS = QClass(uint16(msg[5]) | uint16(msg[4]))
-	r.TTL = uint16(msg[7]) | uint16(msg[6])
-	r.RDLENGTH = uint16(msg[9]) | uint16(msg[8])
-	r.RDATA = msg[10 : 10+(r.RDLENGTH/8)]
+	r.TTL = uint32(msg[9]) | uint32(msg[8]) | uint32(msg[7]) | uint32(6)
+	r.RDLENGTH = uint16(msg[11]) | uint16(msg[10])
+	r.RDATA = msg[12 : 12+r.RDLENGTH]
 
-	n = int(10 + (r.RDLENGTH / 8))
+	n = int(12 + r.RDLENGTH)
 	return
 }
 

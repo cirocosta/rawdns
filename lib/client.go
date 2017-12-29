@@ -101,7 +101,7 @@ func (c *Client) LookupAddr(addr string) (ips []string, err error) {
 	}
 
 	for _, answer := range responseMsg.Answers {
-		fmt.Printf("ANSWER: %s\n", string(answer.RDATA))
+		fmt.Printf("ANSWER: %+v\n", answer.RDATA)
 	}
 
 	return

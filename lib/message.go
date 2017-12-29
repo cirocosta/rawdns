@@ -64,7 +64,7 @@ func UnmarshalMessage(msg []byte, m *Message) (err error) {
 		n         int = 0
 	)
 
-	n, err = UnmarshalHeader(msg, header)
+	n, err = UnmarshalHeader(msg[0:12], header)
 	if err != nil {
 		err = errors.Wrapf(err,
 			"failed to read header")
@@ -73,7 +73,8 @@ func UnmarshalMessage(msg []byte, m *Message) (err error) {
 
 	bytesRead += n
 
-	questions = make([]*Question, header.QDCOUNT)
+	// TODO fix -> this should come from the question count
+	questions = make([]*Question, 1)
 	for ndx, _ = range questions {
 		questions[ndx] = new(Question)
 

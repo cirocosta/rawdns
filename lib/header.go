@@ -154,8 +154,8 @@ func UnmarshalHeader(msg []byte, h *Header) (err error) {
 	// take the second byte of the second row (RA, Z, RCODE)
 	h1_1 = msg[3]
 	h.RCODE = h1_1 & masks[3]
-	h.RCODE = (h1_1 >> 4) & masks[2]
-	h.RCODE = (h1_1 >> 7) & masks[0]
+	h.Z = (h1_1 >> 4) & masks[2]
+	h.RA = (h1_1 >> 7) & masks[0]
 
 	// QDCOUNT, ANCOUNT, NSCOUNT and ARCOUNT are all formed by two bytes that
 	// results in uint16.
@@ -171,7 +171,7 @@ func UnmarshalHeader(msg []byte, h *Header) (err error) {
 	h.QDCOUNT = uint16(msg[9]) | uint16(msg[8]<<8)
 
 	// ARCOUNT is formed by two bytes that results in uint16
-	h.QDCOUNT = uint16(msg[11]) | uint16(msg[10]<<8)
+	h.ARCOUNT = uint16(msg[11]) | uint16(msg[10]<<8)
 
 	return
 }
@@ -192,18 +192,18 @@ func (h Header) Marshal() (res []byte, err error) {
 	// TC:		6
 	// RD:		7
 	h1_0 = h.QR << (7 - 0)
-	h1_0 = h1_0 | byte(h.Opcode)<<(7-1)
-	h1_0 = h1_0 | h.AA<<(7-5)
-	h1_0 = h1_0 | h.TC<<(7-6)
-	h1_0 = h1_0 | h.RD<<(7-7)
+	h1_0 |= byte(h.Opcode) << (7 - (1 + 3))
+	h1_0 |= h.AA << (7 - 5)
+	h1_0 |= h.TC << (7 - 6)
+	h1_0 |= h.RD << (7 - 7)
 
 	// second 8bit part of the second row
 	// RA:		0
 	// Z:		1 2 3
 	// RCODE:	4 5 6 7
 	h1_1 = h.RA << (7 - 0)
-	h1_1 = h1_1 | h.Z<<(7-1)
-	h1_1 = h1_1 | byte(h.RCODE)<<(7-4)
+	h1_1 |= h.Z << (7 - 1)
+	h1_1 |= byte(h.RCODE) << (7 - (4 + 3))
 
 	buf.WriteByte(h1_0)
 	buf.WriteByte(h1_1)

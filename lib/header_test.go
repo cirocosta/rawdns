@@ -21,7 +21,7 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 			entity: &Header{
 				ID:      2,
 				QR:      1,
-				Opcode:  OpcodeQuery,
+				Opcode:  OpcodeIquery,
 				AA:      1,
 				TC:      1,
 				RD:      1,

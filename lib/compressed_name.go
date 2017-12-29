@@ -61,12 +61,6 @@ func (c CompressedName) Marshal() (res []byte, err error) {
 //    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //
 func UnmarshalCompressedName(msg []byte, c *CompressedName) (err error) {
-	// look at the first two
-	// capture an uint8 from the rest of msg0
-	// capture uint8 from msg1
-	// form an uint16 (big endian) from the captured ints
-	// form the compressed message
-
 	if c == nil {
 		err = errors.Errorf("CompressedName must be non-nil")
 		return

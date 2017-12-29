@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/alexflint/go-arg"
+
+	_ "github.com/cirocosta/rawdns/lib"
 )
 
 type cliConfig struct {

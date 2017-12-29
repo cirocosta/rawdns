@@ -1,16 +1,11 @@
 package lib
 
-import ()
-
-//
+// RR represents a resource record.
 //
 //                                   1  1  1  1  1  1
 //     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
 //   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-//   |                                               |
-//   /                                               /
-//   /                      NAME                     /
-//   |                                               |
+//   |                      NAME                     |
 //   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //   |                      TYPE                     |
 //   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
@@ -57,11 +52,16 @@ type RR struct {
 	RDATA []byte
 }
 
-func UnmarshalRR(msg []byte, r *RR) (err error) {
-	if (msg[0] >> 7) > 0 {
+func UnmarshalRR(msg []byte, r *RR) (n int, err error) {
+	//	msg[0] and msg[1] --> compressed shit
 
-	}
+	r.TYPE = QType(uint16(msg[3]) | uint16(msg[2]))
+	r.CLASS = QClass(uint16(msg[5]) | uint16(msg[4]))
+	r.TTL = uint16(msg[7]) | uint16(msg[6])
+	r.RDLENGTH = uint16(msg[9]) | uint16(msg[8])
+	r.RDATA = msg[10 : 10+(r.RDLENGTH/8)]
 
+	n = int(10 + (r.RDLENGTH / 8))
 	return
 }
 

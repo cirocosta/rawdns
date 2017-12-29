@@ -113,7 +113,7 @@ type Header struct {
 	ARCOUNT uint16
 }
 
-func UnmarshalHeader(msg []byte, h *Header) (err error) {
+func UnmarshalHeader(msg []byte, h *Header) (n int, err error) {
 	if h == nil {
 		err = errors.Errorf("header must be non-nil")
 		return
@@ -173,6 +173,7 @@ func UnmarshalHeader(msg []byte, h *Header) (err error) {
 	// ARCOUNT is formed by two bytes that results in uint16
 	h.ARCOUNT = uint16(msg[11]) | uint16(msg[10]<<8)
 
+	n = 12
 	return
 }
 

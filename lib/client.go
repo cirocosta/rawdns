@@ -92,7 +92,17 @@ func (c *Client) LookupAddr(addr string) (ips []string, err error) {
 
 	}
 
-	fmt.Printf("response: %s", string(buf))
+	responseMsg := &Message{}
+	err = UnmarshalMessage(buf, responseMsg)
+	if err != nil {
+		err = errors.Wrapf(err,
+			"failed to read message")
+		return
+	}
+
+	for _, answer := range responseMsg.Answers {
+		fmt.Printf("ANSWER: %s\n", string(answer.RDATA))
+	}
 
 	return
 }

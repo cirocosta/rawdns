@@ -127,7 +127,7 @@ func (q Question) Marshal() (res []byte, err error) {
 // 1. pick a number --> indicates how many bytes we can read ahead
 //    --> if ZERO: then we know it comes a QTYPE and a QCLASS
 // 2.
-func UnmarshalQuestion(msg []byte, q *Question) (err error) {
+func UnmarshalQuestion(msg []byte, q *Question) (n int, err error) {
 	if q == nil {
 		err = errors.Errorf("question must be non-nil")
 		return
@@ -153,6 +153,8 @@ func UnmarshalQuestion(msg []byte, q *Question) (err error) {
 	q.QNAME = strings.Join(labels, ".")
 	q.QTYPE = QType(uint16(msg[ndx+1]) | uint16(msg[ndx]<<8))
 	q.QCLASS = QClass(uint16(msg[ndx+3]) | uint16(msg[ndx+2]<<8))
+
+	n = ndx + 3 + 1
 
 	return
 }

@@ -97,8 +97,6 @@ func (q Question) Marshal() (res []byte, err error) {
 		labels []string
 	)
 
-	// split QNAME by label using `.` as the separator
-
 	labels = strings.Split(q.QNAME, ".")
 	if len(labels) < 2 {
 		err = errors.Errorf(

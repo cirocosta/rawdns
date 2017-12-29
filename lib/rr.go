@@ -26,53 +26,45 @@ import ()
 //   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //
 type RR struct {
-	// Domain name to which this resource record pertains
+
+	// NAME is the Domain name to which this resource record pertains.
+	// It might either come in the compressed format or not, depending
+	// on the server.
+	// Typically this should come compressed (indicated by the first two
+	// bits).
 	NAME string
 
-	// The type of the RR. It specifies the meaning of the
+	// TYPE is the type of the RR. It specifies the meaning of the
 	// data that RDATA contains.
 	TYPE QType
 
-	// Identifies the class of the data holded on RDATA.
+	// CLASS identifies the class of the data holded on RDATA.
 	CLASS QClass
 
-	// Indicates the time interval in seconds that the resource
+	// TTL indicates the time interval in seconds that the resource
 	// recorded may be cached before it should be discarded.
 	TTL uint16
 
-	// Specifies the length in octets of the RDATA field.
+	// RDLENGTH specifies the length in octets of the RDATA field.
 	// ps.: if there's a pointer in the RDATA, this length
 	// will not count the final result (expanded), but the
 	// actual amount in transfer.
 	RDLENGTH uint16
 
-	// Generic data from the record.
+	// RDATA is the generic data from the record.
 	// The format of the information contained here varies
 	// according to the tupple {TYPE, CLASS} of the RR.
 	RDATA []byte
 }
 
-//
-// TODO - Compression format expansion
-//
-// Necessary because programs are free to avoid using pointers
-// in the message they generate but all of the consumers are
-// required to understand arriving messages that contain pointers.
-//
-// first to bits set to 1: pointer
-// first to bits set to 0: label
-//
-//    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-//    | 1  1|                OFFSET                   |
-//    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-//
-//
-//
+func UnmarshalRR(msg []byte, r *RR) (err error) {
+	if (msg[0] >> 7) > 0 {
 
-type RRA struct {
-	RR
+	}
+
+	return
 }
 
-func (r RRA) ParseRDATA() (err error) {
+func (r *RR) Marshal() (res []byte, err error) {
 	return
 }

@@ -27,10 +27,10 @@ type Question struct {
 	QNAME string
 
 	// QTYPE specifies the type of the query to perform.
-	QTYPE uint16
+	QTYPE QType
 
 	// QCLASS
-	QCLASS uint16
+	QCLASS QClass
 }
 
 type QType uint16
@@ -120,7 +120,7 @@ func (q Question) Marshal() (res []byte, err error) {
 	buf.WriteByte(0)
 
 	binary.Write(buf, binary.BigEndian, q.QTYPE)
-	binary.Write(buf, binary.BigEndian, q.QNAME)
+	binary.Write(buf, binary.BigEndian, q.QCLASS)
 
 	res = buf.Bytes()
 	return
@@ -153,6 +153,8 @@ func UnmarshalQuestion(msg []byte, q *Question) (err error) {
 	}
 
 	q.QNAME = strings.Join(labels, ".")
+	q.QTYPE = QType(uint16(msg[ndx+1]) | uint16(msg[ndx]<<8))
+	q.QCLASS = QClass(uint16(msg[ndx+3]) | uint16(msg[ndx+2]<<8))
 
 	return
 }

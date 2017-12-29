@@ -72,6 +72,11 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 
 			assert.Equal(t, tc.entity.ID, unmarshalled.ID)
 			assert.Equal(t, tc.entity.QR, unmarshalled.QR)
+			assert.Equal(t, tc.entity.Opcode, unmarshalled.Opcode)
+			assert.Equal(t, tc.entity.AA, unmarshalled.AA)
+			assert.Equal(t, tc.entity.RCODE, unmarshalled.RCODE)
+			assert.Equal(t, tc.entity.QDCOUNT, unmarshalled.QDCOUNT)
+			assert.Equal(t, tc.entity.ARCOUNT, unmarshalled.ARCOUNT)
 		})
 	}
 }

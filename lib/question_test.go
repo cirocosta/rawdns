@@ -26,9 +26,11 @@ func TestQuestionMarshallingAndUnmarshalling(t *testing.T) {
 			shouldFail: true,
 		},
 		{
-			desc: "well formed label",
+			desc: "well formed",
 			entity: &Question{
-				QNAME: "test.com",
+				QNAME:  "test.com",
+				QTYPE:  QTypeTXT,
+				QCLASS: QClassIN,
 			},
 		},
 	}
@@ -48,13 +50,14 @@ func TestQuestionMarshallingAndUnmarshalling(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Equal(t, 12, len(msg))
 
 			unmarshalled = new(Question)
 			err = UnmarshalQuestion(msg, unmarshalled)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.entity.QNAME, unmarshalled.QNAME)
+			assert.Equal(t, tc.entity.QCLASS, unmarshalled.QCLASS)
+			assert.Equal(t, tc.entity.QTYPE, unmarshalled.QTYPE)
 		})
 	}
 }

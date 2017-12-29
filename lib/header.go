@@ -140,13 +140,8 @@ var masks = []byte{
 }
 
 func UnmarshalHeader(msg []byte, h *Header) (err error) {
-	var (
-		h1_0 byte = 0
-		h1_1 byte = 0
-	)
-
 	if h == nil {
-		err = errors.Errorf("header must not be nil")
+		err = errors.Errorf("header must be non-nil")
 		return
 	}
 
@@ -156,6 +151,11 @@ func UnmarshalHeader(msg []byte, h *Header) (err error) {
 			len(msg))
 		return
 	}
+
+	var (
+		h1_0 byte = 0
+		h1_1 byte = 0
+	)
 
 	// ID is formed by the first two bytes such that
 	// it results in an uint16.

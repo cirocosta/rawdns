@@ -2,7 +2,7 @@ package lib
 
 type Message struct {
 	Header
-	// Question
+	Question
 	// Answer
 	// Authority
 	// Additional

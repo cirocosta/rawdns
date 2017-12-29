@@ -9,17 +9,16 @@ import (
 
 func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 	var testCases = []struct {
-		desc        string
-		header      *Header
-		shouldError bool
+		desc   string
+		entity *Header
 	}{
 		{
 			desc:   "0-ed case",
-			header: &Header{},
+			entity: &Header{},
 		},
 		{
 			desc: "case all set",
-			header: &Header{
+			entity: &Header{
 				ID:      2,
 				QR:      1,
 				Opcode:  OpcodeQuery,
@@ -37,7 +36,7 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 		},
 		{
 			desc: "some set",
-			header: &Header{
+			entity: &Header{
 				ID:      333,
 				QR:      1,
 				Opcode:  OpcodeQuery,
@@ -56,23 +55,23 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 	}
 
 	var (
-		msg                []byte
-		err                error
-		unarmshalledHeader *Header
+		msg          []byte
+		err          error
+		unmarshalled *Header
 	)
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			msg, err = tc.header.Marshal()
+			msg, err = tc.entity.Marshal()
 			require.NoError(t, err)
 			assert.Equal(t, 12, len(msg))
 
-			unarmshalledHeader = new(Header)
-			err = UnmarshalHeader(msg, unarmshalledHeader)
+			unmarshalled = new(Header)
+			err = UnmarshalHeader(msg, unmarshalled)
 			require.NoError(t, err)
 
-			assert.Equal(t, tc.header.ID, unarmshalledHeader.ID)
-			assert.Equal(t, tc.header.QR, unarmshalledHeader.QR)
+			assert.Equal(t, tc.entity.ID, unmarshalled.ID)
+			assert.Equal(t, tc.entity.QR, unmarshalled.QR)
 		})
 	}
 }

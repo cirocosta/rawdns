@@ -21,10 +21,75 @@ import (
 //    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //
 type Question struct {
-	QNAME  string
-	QTYPE  uint16
+	// QNAME refers to the domain name to be resolved in the query.
+	// It's represented as a sequence of labels where each label
+	// consists
+	QNAME string
+
+	// QTYPE specifies the type of the query to perform.
+	QTYPE uint16
+
+	// QCLASS
 	QCLASS uint16
 }
+
+type QType uint16
+
+const (
+	QTypeUnknown QType = iota
+
+	// Host address
+	QTypeA
+
+	// Authoritative name server
+	QTypeNS
+
+	QTypeMD
+	QTypeMF
+
+	// Canonical name for an alias
+	QTypeCNAME
+
+	// Marks the start of a zone of authority
+	QTypeSOA
+
+	QTypeMB
+	QTypeMG
+	QTypeMR
+	QTypeNULL
+	QTypeWKS
+
+	// Domain name pointer
+	QTypePTR
+	QTypeHINFO
+	QTypeMINFO
+
+	// Mail exchange
+	QTypeMX
+	QTypeTXT
+	QTypeAXFR  QType = 252
+	QTypeMAILB QType = 253
+	QTypeMAILA QType = 254
+
+	// All records
+	QTypeWildcard QType = 255
+)
+
+type QClass uint16
+
+const (
+	QClassUnknown QClass = iota
+
+	// Internet
+	QClassIN
+
+	QClassCS
+	QClassCH
+	QClassHS
+
+	// Any class
+	QClassWildcard QClass = 255
+)
 
 func (q Question) Marshal() (res []byte, err error) {
 	var (
@@ -54,5 +119,13 @@ func (q Question) Marshal() (res []byte, err error) {
 
 	res = buf.Bytes()
 	return
+}
 
+func UnmarshalQuestion(msg []byte, q *Question) (err error) {
+	if q == nil {
+		err = errors.Errorf("question must be non-nil")
+		return
+	}
+
+	return
 }

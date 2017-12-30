@@ -28,7 +28,7 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 				RA:      1,
 				Z:       1,
 				RCODE:   1,
-				QDCOUNT: 1,
+				QDCOUNT: 3,
 				ANCOUNT: 1,
 				NSCOUNT: 1,
 				ARCOUNT: 1,

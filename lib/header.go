@@ -168,7 +168,7 @@ func UnmarshalHeader(msg []byte, h *Header) (n int, err error) {
 	h.ANCOUNT = uint16(msg[7]) | uint16(msg[6]<<8)
 
 	// NSCOUNT is formed by two bytes that results in uint16
-	h.QDCOUNT = uint16(msg[9]) | uint16(msg[8]<<8)
+	h.NSCOUNT = uint16(msg[9]) | uint16(msg[8]<<8)
 
 	// ARCOUNT is formed by two bytes that results in uint16
 	h.ARCOUNT = uint16(msg[11]) | uint16(msg[10]<<8)

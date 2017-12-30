@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 )
 
@@ -73,8 +74,9 @@ func UnmarshalMessage(msg []byte, m *Message) (err error) {
 
 	bytesRead += n
 
-	// TODO fix -> this should come from the question count
-	questions = make([]*Question, 1)
+	fmt.Printf("%+v\n", header)
+
+	questions = make([]*Question, header.QDCOUNT)
 	for ndx, _ = range questions {
 		questions[ndx] = new(Question)
 

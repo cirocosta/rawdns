@@ -33,7 +33,7 @@ func TestCompressedNameMarshallingAndUnmarshalling(t *testing.T) {
 			require.NoError(t, err)
 
 			unmarshalled = new(CompressedName)
-			err = UnmarshalCompressedName(msg, unmarshalled)
+			_, err = UnmarshalCompressedName(msg, unmarshalled)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.entity.IsPointer, unmarshalled.IsPointer)

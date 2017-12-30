@@ -49,6 +49,11 @@ func (c CompressedName) Marshal() (res []byte, err error) {
 	return
 }
 
+func (c CompressedName) ExpandCompressedName(msg []byte) (name string, err error) {
+	// TODO
+	return
+}
+
 // UnmarshalCompressedName takes care of populating a CompressedName
 // struct with information gathered from a compressed domain name
 // buffer.
@@ -60,7 +65,7 @@ func (c CompressedName) Marshal() (res []byte, err error) {
 //    | 1  1|                OFFSET                   |
 //    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 //
-func UnmarshalCompressedName(msg []byte, c *CompressedName) (err error) {
+func UnmarshalCompressedName(msg []byte, c *CompressedName) (n int, err error) {
 	if c == nil {
 		err = errors.Errorf("CompressedName must be non-nil")
 		return
@@ -88,6 +93,8 @@ func UnmarshalCompressedName(msg []byte, c *CompressedName) (err error) {
 	lowValue = msg[1]
 
 	c.Offset = uint16(highValue) | uint16(lowValue)
+
+	n = 2
 
 	return
 }

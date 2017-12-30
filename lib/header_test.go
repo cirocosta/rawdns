@@ -67,7 +67,7 @@ func TestHeaderMarshallingAndUnmarshalling(t *testing.T) {
 			assert.Equal(t, 12, len(msg))
 
 			unmarshalled = new(Header)
-			err = UnmarshalHeader(msg, unmarshalled)
+			_, err = UnmarshalHeader(msg, unmarshalled)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.entity.ID, unmarshalled.ID)

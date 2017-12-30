@@ -52,7 +52,7 @@ func TestQuestionMarshallingAndUnmarshalling(t *testing.T) {
 			require.NoError(t, err)
 
 			unmarshalled = new(Question)
-			err = UnmarshalQuestion(msg, unmarshalled)
+			_, err = UnmarshalQuestion(msg, unmarshalled)
 			require.NoError(t, err)
 
 			assert.Equal(t, tc.entity.QNAME, unmarshalled.QNAME)
